@@ -1,6 +1,8 @@
 # Backup tool
 
-Simple backup system that makes it very easy to make cyclic backups from simple postgres and s3 endpoints. Run the program every night and the backups will be made according to the `config.json` file.
+Simple backup system that makes it easy to make cyclic backups from simple postgres and s3 endpoints.
+
+Run the program every night and the backups will be made according to the `config.json` file.
 
 ### Decrypt openssl password encryption:
 
