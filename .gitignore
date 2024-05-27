@@ -1,3 +1,6 @@
 node_modules
 build
 config.json
+tmp
+output
+_state.json
