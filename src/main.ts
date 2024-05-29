@@ -5,7 +5,7 @@ import { backupS3 } from "./services/s3";
 import { isTimeForBackup } from "./services/state";
 
 async function run() {
-  const cfg = await config('config.json');
+  const cfg = await config();
   const backups = cfg.backups;
 
   for (const backup of backups) {

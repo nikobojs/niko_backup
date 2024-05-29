@@ -1,6 +1,5 @@
 import * as yup from 'yup';
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import * as rawConfig from '../config.json';
 
 
 export type BackupJob = {
@@ -62,21 +61,8 @@ export async function validateBackupConfig(parsed: BackupJob): Promise<BackupJob
   return parsed;
 }
 
-export async function config(path: string): Promise<BackupConfig> {
-  const fileExists = existsSync(path);
-  if (!fileExists) {
-    throw new Error('Config file does not exist');
-  }
-  const rawConfig = await readFile(path, 'utf8');
-  
-  let json;
-  try {
-    json = JSON.parse(rawConfig);
-  } catch {
-    throw new Error('Config file is not in correct json format')
-  }
-
-  const parsedConfig = configSchema.validateSync(json);
+export async function config(): Promise<BackupConfig> {
+  const parsedConfig = configSchema.validateSync(rawConfig);
 
   const promises = parsedConfig.backups.map(validateBackupConfig)
   await Promise.all(promises);
