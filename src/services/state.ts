@@ -15,7 +15,7 @@ export async function backupDone(
 
 async function ensureStateFileExists(stateFilePath: string) {
   if (!existsSync(stateFilePath)) {
-    console.log('creating new state file')
+    console.info('> creating new state file...')
     await createStateFile(stateFilePath);
   }
 }
@@ -34,8 +34,8 @@ export async function isTimeForBackup(path: string, job: BackupJob): Promise<boo
       throw new Error('Could not read date from state. State is corrupted.')
     }
 
-    const targetDate = new Date(lastBackup);
-    targetDate.setDate(lastBackup.getDate() + job.keep_in_days);
+    const targetDate = new Date(lastBackup.getTime());
+    targetDate.setDate(lastBackup.getDate() + job.interval_days);
     const result = now.getTime() > targetDate.getTime();
     return result;
   }

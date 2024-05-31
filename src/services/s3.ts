@@ -35,7 +35,7 @@ export async function backupS3(job: BackupJob, stateFilePath: string) {
   }
 
   const time = getFileNameFriendlyDate(new Date());
-  const dirName = `${job.name}_${time}`;
+  const dirName = `${job.name}.${time}`;
   const tmpDir = `tmp/${dirName}`;
   const resultPath = `output/${dirName}.tar.gz` + (job.encrypt ? '.enc' : '');
 
