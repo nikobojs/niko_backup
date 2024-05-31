@@ -10,7 +10,7 @@ export type BackupJob = {
   s3_download_limit?: string;
   upload_to_do: boolean;
   interval_days: number;
-  keep_in_days: number;
+  max_backups: number;
   type: 'postgres' | 's3';
   target: string;
 }
@@ -27,7 +27,7 @@ const backupSchema: yup.ObjectSchema<BackupJob> = yup.object({
   encrypt: yup.boolean().required(),
   upload_to_do: yup.boolean().required(),
   interval_days: yup.number().required().min(1, '\'interval_days\' needs to be at least 1 day'),
-  keep_in_days: yup.number().required().min(0, '\'keep_in_days\' cannot be negative'),
+  max_backups: yup.number().required().min(0, '\'max_backups\' cannot be negative'),
   type: yup.string().oneOf(['postgres', 's3'] as const).required(),
   target: yup.string().required().test('len', '\'target\' cannot be empty', val => !!val),
   encrypt_pass: yup.string().optional(),
