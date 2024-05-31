@@ -14,7 +14,6 @@ export function extractDateFromFileName(
   const match = filename.match(regex);
   if (match) {
     const rawDate = match[0].replace(/_/g, ':');
-    console.log('rawDate:', rawDate)
     const result = new Date(rawDate);
     return result;
   } else {
