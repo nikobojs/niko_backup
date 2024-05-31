@@ -31,7 +31,6 @@ async function run() {
 
   }
 
-  console.info('> deleting old files...')
   await deleteOldFiles(cfg);
 }
 
