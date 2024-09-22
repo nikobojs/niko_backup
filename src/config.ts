@@ -12,6 +12,7 @@ export type BackupJob = {
   interval_days: number;
   max_backups: number;
   type: 'postgres' | 's3';
+  pg_dump?: string;
   target: string;
 }
 
@@ -29,6 +30,7 @@ const backupSchema: yup.ObjectSchema<BackupJob> = yup.object({
   interval_days: yup.number().required().min(1, '\'interval_days\' needs to be at least 1 day'),
   max_backups: yup.number().required().min(0, '\'max_backups\' cannot be negative'),
   type: yup.string().oneOf(['postgres', 's3'] as const).required(),
+  pg_dump: yup.string().optional(),
   target: yup.string().required().test('len', '\'target\' cannot be empty', val => !!val),
   encrypt_pass: yup.string().optional(),
   s3_newer_than: yup.string().optional(),

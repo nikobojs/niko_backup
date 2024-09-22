@@ -14,7 +14,7 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
   const resultPath = `output/${job.name}.${time}.gz` + (job.encrypt ? '.enc' : '');
 
   const mkdirCmd = 'mkdir -p output';
-  const pgDumpCmd = `pg_dump -x -O ${job.target}`
+  const pgDumpCmd = `${job.pg_dump || 'pg_dump'} -x -O ${job.target}`
   const dumpCmd = `${pgDumpCmd} | gzip > ${resultPath}`;
   const dumpEncryptCmd = `${pgDumpCmd} | gzip | openssl enc -e -aes256 -pass pass:${job.encrypt_pass} -out ${resultPath}`;
 
