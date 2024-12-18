@@ -11,8 +11,8 @@
   "author": "Nikolaj Fabricius-Bjerre",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.12.12",
-    "typescript": "^5.4.5",
-    "yup": "^1.4.0"
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "yup": "^1.6.1"
   }
 }
