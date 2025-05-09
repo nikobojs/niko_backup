@@ -4,6 +4,18 @@ Simple backup system that makes it easy to make cyclic backups from simple postg
 
 Run the program every night and the backups will be made according to the `config.json` file.
 
+### How to run
+
+First, you build the node.js compatible file with:
+```bash
+yarn build
+```
+
+Now you can run the program using `node`:
+```bash
+node build/main.js
+```
+
 ### Decrypt openssl password encryption:
 
 s3 backups:
