@@ -28,8 +28,7 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
 
     // call it. call it NOW!
     execSync(job.encrypt ? dumpEncryptCmd : dumpCmd, {
-      timeout: 2,
-
+      timeout: 2000,
     });
 
     // send success notification
