@@ -2,7 +2,7 @@ import { type BackupJob, config } from "../config";
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 
-export async function backupDone(
+export async function resetBackupTimer(
   job: BackupJob,
   stateFilePath: string,
 ) {
@@ -21,6 +21,7 @@ async function ensureStateFileExists(stateFilePath: string) {
 }
 
 export async function isTimeForBackup(path: string, job: BackupJob): Promise<boolean> {
+  if (job.force_run) return true;
   const now = new Date();
   await ensureStateFileExists(path);
   const fileContent = await readFile(path, 'utf8');

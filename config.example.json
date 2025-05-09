@@ -1,6 +1,6 @@
 {
-  "outputDir": "output",
-  "stateFilePath": "_state.json",
+  "outputDir": "./output",
+  "stateFilePath": "./_state.json",
   "backups": [
     {
       "name": "joplin_weekly",
@@ -8,6 +8,8 @@
       "upload_to_do": true,
       "interval_days": 7,
       "keep_in_days": 10,
+      "pg_dump": "/usr/lib/postgresql/16/bin/pg_dump",
+      "psql": "/usr/lib/postgresql/16/bin/psql",
       "type": "postgres",
       "target": "postgres://user:passwd@host:5432/joplin_database"
     },

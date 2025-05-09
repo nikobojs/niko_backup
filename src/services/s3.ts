@@ -1,8 +1,9 @@
 
 import type { BackupJob } from "../config"
 import { getFileNameFriendlyDate } from "../helpers";
-import { backupDone } from "./state"
 import { execSync, spawnSync } from "child_process";
+import { resetBackupTimer } from './state';
+import { sendSuccessNoti } from './notifier';
 
 export async function backupS3(job: BackupJob, stateFilePath: string) {
   const newerThan = job.s3_newer_than;
@@ -28,7 +29,7 @@ export async function backupS3(job: BackupJob, stateFilePath: string) {
     const filesCount = filesToDownload.split('\n').length - 1;
     if (filesCount === 0) {
       console.warn('There are no files to download')
-      await backupDone(job, stateFilePath)
+      await resetBackupTimer(job, stateFilePath);
       return;
     }
     console.log(`Downloading ${filesCount} files from s3..`)
@@ -52,5 +53,6 @@ export async function backupS3(job: BackupJob, stateFilePath: string) {
   execSync(job.encrypt ? tarCmdEncrypt : tarCmd);
   execSync(cleanupCmd);
 
-  await backupDone(job, stateFilePath)
+  await resetBackupTimer(job, stateFilePath);
+  await sendSuccessNoti(job.name);
 }

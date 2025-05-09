@@ -1,6 +1,7 @@
 import type { BackupJob } from "../config"
 import { getFileNameFriendlyDate } from "../helpers";
-import { backupDone } from "./state"
+import { parseAndNotify, sendSuccessNoti } from './notifier';
+import { resetBackupTimer } from "./state"
 import { execSync } from "child_process";
 
 export async function backupPostgres(job: BackupJob, stateFilePath: string) {
@@ -12,14 +13,32 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
 
   const time = getFileNameFriendlyDate(new Date());
   const resultPath = `output/${job.name}.${time}.gz` + (job.encrypt ? '.enc' : '');
-
+  const psqlCheckCmd = `PGCONNECT_TIMEOUT=3 psql ${job.target} -c 'SELECT 1'`;
   const mkdirCmd = 'mkdir -p output';
   const pgDumpCmd = `${job.pg_dump || 'pg_dump'} -x -O ${job.target}`
-  const dumpCmd = `${pgDumpCmd} | gzip > ${resultPath}`;
+  const dumpCmd = `${pgDumpCmd} --no-reconnect | gzip > ${resultPath}`;
   const dumpEncryptCmd = `${pgDumpCmd} | gzip | openssl enc -e -aes256 -pass pass:${job.encrypt_pass} -out ${resultPath}`;
 
-  execSync(mkdirCmd);
-  execSync(job.encrypt ? dumpEncryptCmd : dumpCmd);
+  try {
+    // check if there is postgres connection, report err if not
+    execSync(psqlCheckCmd); 
 
-  await backupDone(job, stateFilePath);
+    // ensure dir exists
+    execSync(mkdirCmd);
+
+    // call it. call it NOW!
+    execSync(job.encrypt ? dumpEncryptCmd : dumpCmd, {
+      timeout: 2,
+
+    });
+
+    // send success notification
+    await sendSuccessNoti(job.name);
+  } catch(e: any) {
+    // parse and report error
+    await parseAndNotify(job, e);
+  }
+
+  // reset backup timer no matter if it went well or not
+  await resetBackupTimer(job, stateFilePath);
 }
