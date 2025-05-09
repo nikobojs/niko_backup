@@ -36,6 +36,7 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
     await sendSuccessNoti(job.name);
   } catch(e: any) {
     // parse and report error
+    console.error(e)
     await parseAndNotify(job, e);
   }
 
