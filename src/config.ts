@@ -1,47 +1,38 @@
 import * as yup from 'yup';
 import * as rawConfig from '../config.json';
 
+import 'dotenv/config';
 
-export type BackupJob = {
-  name: string;
-  encrypt: boolean;
-  encrypt_pass?: string;
-  s3_newer_than?: string;
-  s3_download_limit?: string;
-  upload_to_do: boolean;
-  interval_days: number;
-  max_backups: number;
-  type: 'postgres' | 's3';
-  pg_dump?: string;
-  target: string;
-}
-
-export type BackupConfig = {
-  outputDir: string;
-  stateFilePath: string;
-  backups: BackupJob[]
-}
-
-
-const backupSchema: yup.ObjectSchema<BackupJob> = yup.object({
-  name: yup.string().required(),
-  encrypt: yup.boolean().required(),
-  upload_to_do: yup.boolean().required(),
+const backupSchema = yup.object({
+  name: yup.string().required().default('Unknown'),
+  force_run: yup.boolean().optional(),
+  encrypt: yup.boolean().required().default(false),
+  upload_to_do: yup.boolean().required().default(false),
   interval_days: yup.number().required().min(1, '\'interval_days\' needs to be at least 1 day'),
   max_backups: yup.number().required().min(0, '\'max_backups\' cannot be negative'),
   type: yup.string().oneOf(['postgres', 's3'] as const).required(),
   pg_dump: yup.string().optional(),
+  psql: yup.string().optional(),
   target: yup.string().required().test('len', '\'target\' cannot be empty', val => !!val),
   encrypt_pass: yup.string().optional(),
   s3_newer_than: yup.string().optional(),
   s3_download_limit: yup.string().optional(),
 });
 
-const configSchema: yup.ObjectSchema<BackupConfig> = yup.object({
+const envConfigSchema = yup.object({
+  nfty_token: yup.string().optional(),
+  nfty_base_url: yup.string().optional(),
+});
+
+const configSchema = yup.object({
   outputDir: yup.string().required(),
   stateFilePath: yup.string().required(),
   backups: yup.array(backupSchema).min(1, 'You need at least one backup in your config').required(),
-});
+}).strict();
+
+export type BackupJob = yup.InferType<typeof backupSchema>;
+export type BackupConfig = yup.InferType<typeof configSchema>;
+export type EnvConfig = yup.InferType<typeof envConfigSchema>;
 
 
 export async function validateBackupConfig(parsed: BackupJob): Promise<BackupJob> {
@@ -65,9 +56,15 @@ export async function validateBackupConfig(parsed: BackupJob): Promise<BackupJob
 
 export async function config(): Promise<BackupConfig> {
   const parsedConfig = configSchema.validateSync(rawConfig);
-
-  const promises = parsedConfig.backups.map(validateBackupConfig)
+  const promises = parsedConfig.backups.map((b) => validateBackupConfig(b));
   await Promise.all(promises);
-
   return parsedConfig;
+}
+
+export async function envConfig(): Promise<EnvConfig> {
+  const parsedEnvConfig = envConfigSchema.validateSync({
+    nfty_token: process.env.NFTY_TOKEN,
+    nfty_base_url: process.env.NFTY_BASE_URL,
+  });
+  return parsedEnvConfig;
 }

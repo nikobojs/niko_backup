@@ -4,3 +4,4 @@ config.json
 tmp
 output
 _state.json
+.env

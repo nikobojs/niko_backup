@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config, envConfig } from "./config";
 import { deleteOldFiles } from "./services/deleter";
 import { backupPostgres } from "./services/postgres";
 import { backupS3 } from "./services/s3";
@@ -6,6 +6,7 @@ import { isTimeForBackup } from "./services/state";
 
 async function run() {
   const cfg = await config();
+  const envCfg = await envConfig(); // also validates
   const backups = cfg.backups;
 
   for (const backup of backups) {
@@ -26,9 +27,9 @@ async function run() {
           cfg.stateFilePath,
       );
     } else {
-      
+      // TODO: report error
+      console.error(`Backup with type '${backup.type}' was not recognized! Skipping backup job '${backup.name}'`);
     }
-
   }
 
   await deleteOldFiles(cfg);
