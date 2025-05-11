@@ -21,14 +21,16 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
 
   try {
     // check if there is postgres connection, report err if not
-    execSync(psqlCheckCmd); 
+    execSync(psqlCheckCmd, {
+      timeout: 2000,
+    });
 
     // ensure dir exists
     execSync(mkdirCmd);
 
     // call it. call it NOW!
     execSync(job.encrypt ? dumpEncryptCmd : dumpCmd, {
-      timeout: 2000,
+      timeout: 10000,
     });
 
     // send success notification
