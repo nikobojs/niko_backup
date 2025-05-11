@@ -4,6 +4,8 @@ import { parseAndNotify, sendSuccessNoti } from './notifier';
 import { resetBackupTimer } from "./state"
 import { execSync } from "child_process";
 
+const twoMinutes = 2 * 60 * 1000;
+
 export async function backupPostgres(job: BackupJob, stateFilePath: string) {
   console.log('Backing up postgres:', job.target)
 
@@ -30,7 +32,7 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
 
     // call it. call it NOW!
     execSync(job.encrypt ? dumpEncryptCmd : dumpCmd, {
-      timeout: 10000,
+      timeout: twoMinutes,
     });
 
     // send success notification
