@@ -32,5 +32,6 @@ function getRelatedBackupFiles(backup: BackupJob, paths: string[]) {
 }
 
 async function deleteFiles(dir: string, paths: string[]) {
+  console.log('deleting files:', paths, 'dir:', dir);
   await Promise.all(paths.map(p => fs.unlink(path.join(dir, p))));
 }
