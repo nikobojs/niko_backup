@@ -41,24 +41,31 @@ async function _sendNotification(
   }
 
   // send request
-  const res = await fetch(endpoint, {
-    method: 'POST', // PUT works too
-    body: body,
-    headers: headers,
-  });
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST', // PUT works too
+      body: body,
+      headers: headers,
+    });
 
-  // retreive json
-  const json: any = await res.json();
-  if (json.http) {
-    if (json?.http !== 200) {
-      const error = json?.error || 'Unknown error'
-      console.error('Unable to send notification:', { error, code: json?.code });
-      // TODO: report error !!!!!!!!! this is important
+    // retreive json
+    const json: any = await res.json();
+
+    if (json.http) {
+      if (json?.http !== 200) {
+        const error = json?.error || 'Unknown error'
+        console.error('Recieved bad response from ntfy service', { error, json });
+        throw new Error(error);
+      }
     }
-  }
 
-  // TODO: validate response and returned typed object
-  return json;
+    // TODO: validate response and returned typed object
+    return json;
+  } catch(e) {
+    console.error('Error: Unable to send notification!');
+    console.log(e)
+    // TODO: report error !!!!!!!!! this is important
+  }
 }
 
 export async function sendBackupErrNoti(jobName: string, errMsg: string) {
@@ -76,6 +83,6 @@ export async function sendSuccessNoti(jobName: string) {
 export async function parseAndNotify(job: BackupJob, e: Error | any) {
   const fullMsg = e?.message.trim() || 'Unknown error';
   const psqlErr: string | undefined = fullMsg.split('\n')?.[1];
-  const errToReport = psqlErr || fullMsg; 
+  const errToReport = psqlErr || fullMsg;
   sendBackupErrNoti(job.name, errToReport);
 }

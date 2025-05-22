@@ -4,6 +4,7 @@ import { getFileNameFriendlyDate } from "../helpers";
 import { execSync, spawnSync } from "child_process";
 import { resetBackupTimer } from './state';
 import { sendSuccessNoti } from './notifier';
+import { backupFileToSecondLocation } from "./rclone";
 
 export async function backupS3(job: BackupJob, stateFilePath: string) {
   const newerThan = job.s3_newer_than;
@@ -54,5 +55,11 @@ export async function backupS3(job: BackupJob, stateFilePath: string) {
   execSync(cleanupCmd);
 
   await resetBackupTimer(job, stateFilePath);
+
+  // backup postgres to second location if enabled
+  if (!job.disable_second_location) {
+    await backupFileToSecondLocation(job, resultPath);
+  }
+
   await sendSuccessNoti(job.name);
 }

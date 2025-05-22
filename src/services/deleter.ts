@@ -5,13 +5,13 @@ import * as path from 'node:path';
 import { extractDateFromFileName } from "../helpers";
 
 export async function deleteOldFiles(config: BackupConfig) {
-  const backupFiles = await fs.readdir(config.outputDir);
+  const backupFiles = await fs.readdir(config.output_dir);
 
   for (const backup of config.backups) {
     const relatedBackupFiles = getRelatedBackupFiles(backup, backupFiles);
     if (relatedBackupFiles.length > backup.max_backups) {
       const backupsToDelete = relatedBackupFiles.slice(backup.max_backups);
-      await deleteFiles(config.outputDir, backupsToDelete);
+      await deleteFiles(config.output_dir, backupsToDelete);
     }
   }
 }

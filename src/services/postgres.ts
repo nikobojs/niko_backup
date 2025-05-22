@@ -1,6 +1,7 @@
 import type { BackupJob } from "../config"
 import { getFileNameFriendlyDate } from "../helpers";
 import { parseAndNotify, sendSuccessNoti } from './notifier';
+import { backupFileToSecondLocation } from "./rclone";
 import { resetBackupTimer } from "./state"
 import { execSync } from "child_process";
 
@@ -34,6 +35,11 @@ export async function backupPostgres(job: BackupJob, stateFilePath: string) {
     execSync(job.encrypt ? dumpEncryptCmd : dumpCmd, {
       timeout: twoMinutes,
     });
+
+    // backup postgres to second location if enabled
+    if (!job.disable_second_location) {
+      await backupFileToSecondLocation(job, resultPath);
+    }
 
     // send success notification
     await sendSuccessNoti(job.name);

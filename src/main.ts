@@ -10,7 +10,7 @@ async function run() {
   const backups = cfg.backups;
 
   for (const backup of backups) {
-    const timeForBackup = await isTimeForBackup(cfg.stateFilePath, backup)
+    const timeForBackup = await isTimeForBackup(cfg.state_file_path, backup)
     if (!timeForBackup) {
       console.log('its not yet time for', backup.name);
       continue;
@@ -19,12 +19,12 @@ async function run() {
     if (backup.type === 'postgres') {
       await backupPostgres(
           backup,
-          cfg.stateFilePath,
+          cfg.state_file_path,
       );
     } else if (backup.type === 's3') {
       await backupS3(
           backup,
-          cfg.stateFilePath,
+          cfg.state_file_path,
       );
     } else {
       // TODO: report error

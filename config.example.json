@@ -1,11 +1,14 @@
 {
-  "outputDir": "./output",
-  "stateFilePath": "./_state.json",
+  "output_dir": "./output",
+  "state_file_path": "./_state.json",
+  "second_location": {
+    "type": "rclone",
+    "target": "proton_drive:Backup"
+  },
   "backups": [
     {
       "name": "joplin_weekly",
       "encrypt": true,
-      "upload_to_do": true,
       "interval_days": 7,
       "keep_in_days": 10,
       "pg_dump": "/usr/lib/postgresql/16/bin/pg_dump",
@@ -16,7 +19,6 @@
     {
       "name": "customer_file_server",
       "encrypt": true,
-      "upload_to_do": false,
       "interval_days": 7,
       "keep_in_days": 10,
       "type": "s3",
@@ -25,7 +27,6 @@
     {
       "name": "finance_database",
       "encrypt": true,
-      "upload_to_do": true,
       "interval_days": 7,
       "keep_in_days": 10,
       "type": "postgres",

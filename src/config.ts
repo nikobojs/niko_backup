@@ -1,13 +1,11 @@
 import * as yup from 'yup';
 import * as rawConfig from '../config.json';
-
 import 'dotenv/config';
 
 const backupSchema = yup.object({
   name: yup.string().required().default('Unknown'),
   force_run: yup.boolean().optional(),
   encrypt: yup.boolean().required().default(false),
-  upload_to_do: yup.boolean().required().default(false),
   interval_days: yup.number().required().min(1, '\'interval_days\' needs to be at least 1 day'),
   max_backups: yup.number().required().min(0, '\'max_backups\' cannot be negative'),
   type: yup.string().oneOf(['postgres', 's3'] as const).required(),
@@ -15,6 +13,7 @@ const backupSchema = yup.object({
   psql: yup.string().optional(),
   target: yup.string().required().test('len', '\'target\' cannot be empty', val => !!val),
   encrypt_pass: yup.string().optional(),
+  disable_second_location: yup.boolean().optional(),
   s3_newer_than: yup.string().optional(),
   s3_download_limit: yup.string().optional(),
 });
@@ -25,15 +24,18 @@ const envConfigSchema = yup.object({
 });
 
 const configSchema = yup.object({
-  outputDir: yup.string().required(),
-  stateFilePath: yup.string().required(),
+  output_dir: yup.string().required(),
+  state_file_path: yup.string().required(),
+  second_location: yup.object({
+    type: yup.string().oneOf(['rclone'] as const).required(),
+    target: yup.string().required().test('len', 'second_location.target cannot be empty', v => !!v),
+  }).required(),
   backups: yup.array(backupSchema).min(1, 'You need at least one backup in your config').required(),
 }).strict();
 
 export type BackupJob = yup.InferType<typeof backupSchema>;
 export type BackupConfig = yup.InferType<typeof configSchema>;
 export type EnvConfig = yup.InferType<typeof envConfigSchema>;
-
 
 export async function validateBackupConfig(parsed: BackupJob): Promise<BackupJob> {
   if (parsed.type === 'postgres') {
