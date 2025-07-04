@@ -48,11 +48,11 @@ export async function backupS3(job: BackupJob, stateFilePath: string) {
   const tarCmdEncrypt = `tar -cvf - ${tmpDir} | openssl enc -e -aes256 -pass pass:${job.encrypt_pass} -out ${resultPath}`;
   const cleanupCmd = 'rm -r tmp';
 
-  execSync(mkdirTmpCmd);
-  execSync(mkdirOutputCmd);
-  execSync(mirrorCmd);
-  execSync(job.encrypt ? tarCmdEncrypt : tarCmd);
-  execSync(cleanupCmd);
+  execSync(mkdirTmpCmd, { stdio: 'ignore' });
+  execSync(mkdirOutputCmd, { stdio: 'ignore' });
+  execSync(mirrorCmd, { stdio: 'ignore' });
+  execSync(job.encrypt ? tarCmdEncrypt : tarCmd, { stdio: 'ignore' });
+  execSync(cleanupCmd, { stdio: 'ignore' });
 
   await resetBackupTimer(job, stateFilePath);
 
